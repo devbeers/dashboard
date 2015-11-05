@@ -22,7 +22,7 @@ module.exports = function(app, server, config) {
   app.set('views', config.root + '/app/views');
   app.set('view engine', 'handlebars');
 
-  // app.use(favicon(config.root + '/public/img/favicon.ico'));
+  app.use(favicon(config.root + '/public/img/favicon.ico'));
   app.use(logger('dev'));
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({
