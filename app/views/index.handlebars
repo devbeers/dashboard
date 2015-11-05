@@ -1,0 +1,205 @@
+<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="../">
+        <span class="glyphicon glyphicon-chevron-left"></span>
+      </a>
+      <a class="navbar-brand" href="./">devbeers &raquo; Dashboard</a>
+    </div>
+    <div class="navbar-collapse collapse">
+      <ul class="nav navbar-nav navbar-left">
+        <li><a href="http://devbeers.io">Home</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid">
+
+  <div class="row">
+    <div class="row">
+      <div class="col-sm-6 col-md-4">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+            <div class="btn-group-xs">
+              <button type="button" id="1month" class="btn btn-default">1 Month</button>
+              <button type="button" id="3months" class="btn btn-default">3 Months</button>
+              <button type="button" id="6months" class="btn btn-default">6 Months</button>
+              <button type="button" id="alltime" class="btn btn-default">All-time</button>
+            </div>
+          </div>
+          <div class="chart-stage">
+            <div id="nps-score-participants-average"></div>
+          </div>
+          <div class="chart-notes">
+            Ranges from 0-10
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-md-4">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+          </div>
+          <div class="chart-stage">
+            <div id="nps-score-participants"></div>
+          </div>
+          <div class="chart-notes">
+            Ranges from -100 to 100
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-md-4">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+          </div>
+          <div class="chart-stage">
+            <div id="happiness-score-organizers"></div>
+          </div>
+          <div class="chart-notes">
+            Ranges from 1 to 5
+          </div>
+        </div>
+      </div>
+    </div>
+<!-- end of three -->
+    <div class="row">
+      <div class="col-sm-6 col-md-4">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+          </div>
+          <div class="chart-stage">
+            <div id="happiness-score-organizers"></div>
+          </div>
+          <div class="chart-notes">
+            Ranges from 1 to 5
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-md-4">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+          </div>
+          <div class="chart-stage">
+            <div id="all-time-signups"></div>
+          </div>
+          <div class="chart-notes">
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-md-4">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+          </div>
+          <div class="chart-stage">
+            <div id="all-time-unique-signups"></div>
+          </div>
+          <div class="chart-notes">
+          </div>
+        </div>
+      </div>
+    </div>
+<!-- end of three -->
+    <div class="row">
+      <div class="col-sm-8">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+          </div>
+          <div class="chart-stage">
+            <div id="monthly-signups-sp"></div>
+          </div>
+          <div class="chart-notes">
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+            Cell Title
+          </div>
+          <div class="chart-stage">
+            <img data-src="holder.js/100%x180/white">
+          </div>
+          <div class="chart-notes">
+            Notes about this chart
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-8">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+          </div>
+          <div class="chart-stage">
+            <div id="monthly-checkins-sp"></div>
+          </div>
+          <div class="chart-notes">
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+            Cell Title
+          </div>
+          <div class="chart-stage">
+            <img data-src="holder.js/100%x180/white">
+          </div>
+          <div class="chart-notes">
+            Notes about this chart
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-8">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+          </div>
+          <div class="chart-stage">
+            <div id="monthly-checkins-and-signups"></div>
+          </div>
+          <div class="chart-notes">
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+          </div>
+          <div class="chart-stage">
+            <div id="average-no-show"></div>
+          </div>
+          <div class="chart-notes">
+            Ranges from 0 to 100
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <p class="small text-muted">Built with &#9829; by <a href="https://keen.io">Keen IO</a></p>
+
+</div>
+
+<script type="text/javascript" src="/lib/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+
+<script type="text/javascript" src="/lib/holderjs/holder.js"></script>
+<script>
+  Holder.add_theme("white", { background:"#fff", foreground:"#a7a7a7", size:10 });
+</script>
+
+<script type="text/javascript" src="/lib/keen-js/dist/keen.min.js"></script>
+<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+<script type="text/javascript" src="/js/dashboard.js"></script>
