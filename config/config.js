@@ -1,3 +1,5 @@
+require('dotenv').load();
+
 var path = require('path'),
     rootPath = path.normalize(__dirname + '/..'),
     env = process.env.NODE_ENV || 'development';
@@ -27,7 +29,7 @@ var config = {
       name: 'devbeers-dashboard-express'
     },
     port: 3000,
-    db: 'mongodb://localhost/devbeers-dashboard-express-production'
+    db: process.env.MONGODB_URI
   }
 };
 
