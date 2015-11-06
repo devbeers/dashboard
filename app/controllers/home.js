@@ -110,30 +110,71 @@ allTimeUniqueSignups.callback = function(err, res) {
   }
 };
 
-var monthlySignupCount = { name: 'monthlySignupCount' };
-monthlySignupCount.queries = [new Keen.Query('count', {
+var monthlySignupAndCheckins = { name: 'monthlySignupsAndCheckins' };
+
+// Signup Query
+var monthlySignupCountQuery = new Keen.Query('count', {
   eventCollection: 'Event Participants',
   targetProperty: 'keen.timestamp',
   timeframe: overallTimeframe,
-  group_by: "edition",
+  group_by: "event_id"
+});
+
+// Checkin Query
+var monthlyCheckinCountQuery = new Keen.Query('count', {
+  eventCollection: 'Event Participants',
+  targetProperty: 'keen.timestamp',
+  timeframe: overallTimeframe,
+  group_by: "event_id",
   filters: [
     {
-      "property_name": "city",
-      "operator": "eq",
-      "property_value": 'SP'
+      "property_name": "check_in_date",
+      "operator": "gt",
+      "property_value": '2013-12-31'
     }
   ]
-})];
-monthlySignupCount.callback = function(err, res) {
-  if (err) throw('error charting: ' + err);
-  else {
-    var queryResult = res.result;
+});
+
+monthlySignupAndCheckins.queries = [monthlySignupCountQuery, monthlyCheckinCountQuery];
+var averageCheckInPercentage = { name: 'averageCheckInPercentage' };
+var averageSignups = { name: 'averageSignups' };
+var averageCheckins = { name: 'averageCheckins' };
+monthlySignupAndCheckins.callback = function(err, res) {
+  var result1 = res[0].result;
+  var result2 = res[1].result;
+  var data = [];
+  var i = 0;
+  var j = 0;
+  var checkInPercentage = 0;
+  var averageSignupsResult = 0;
+  var averageCheckinsResult = 0;
+
+  while (i < result1.length) {
+    data[i] = { category: result1[i].event_id, signups: result1[i].result };
     
-    saveAndEmitQuery(monthlySignupCount.name, queryResult);
+    averageSignupsResult += result1[i].result;
+    
+    if(result2[j] && result1[i].event_id === result2[j].event_id) {
+      data[i].checkins = result2[j].result;
+      averageCheckinsResult += result2[j].result;
+      
+      // Calculate no show percentage
+      var editionNoShowPercentage = result2[j].result / result1[i].result;
+      // Don't add to overall edition percentage if value is smaller than 0.1
+      if (editionNoShowPercentage > 0.1) {
+        checkInPercentage += editionNoShowPercentage;
+      }
+      j++;
+    }
+    i++;
   }
+  saveAndEmitQuery(monthlySignupAndCheckins.name, data);
+  saveAndEmitQuery(averageCheckInPercentage.name, (checkInPercentage / result2.length).toFixed(2) * 100);
+  saveAndEmitQuery(averageSignups.name, Math.round((averageSignupsResult / result1.length) * 100) / 100);
+  saveAndEmitQuery(averageCheckins.name, Math.round((averageCheckinsResult / result2.length) * 100) / 100);
 };
 
-var keenParticipantQueries = [allTimeSignups, allTimeUniqueSignups, monthlySignupCount];
+var keenParticipantQueries = [allTimeSignups, allTimeUniqueSignups, monthlySignupAndCheckins, averageCheckInPercentage, averageSignups, averageCheckins];
 
 function saveAndEmitQuery(queryName, queryResult) {
   var query = new QueryResult();
@@ -154,11 +195,11 @@ module.exports = function (app, server) {
   app.use('/', router);
 };
 
-router.get('/', function (req, res, next) {  
+function runKeenQueries() {
   keenSurveyQueries.forEach(function(query) {
     QueryResult.findOne({ 'name': query.name }, function(err, queryResult) {
       if (err) throw('error saving: ' + err);
-      if (!queryResult) {
+      if (!queryResult && query.queries && query.callback) {
         Keen.ready(function() {  
           keenClientSurveys.run(query.queries, query.callback);
         });
@@ -173,7 +214,7 @@ router.get('/', function (req, res, next) {
   keenParticipantQueries.forEach(function(query) {
     QueryResult.findOne({ 'name': query.name }, function(err, queryResult) {
       if (err) throw('error saving: ' + err);
-      if (!queryResult) {
+      if (!queryResult && query.queries && query.callback) {
         Keen.ready(function() {  
           keenParticipantsList.run(query.queries, query.callback);
         });
@@ -184,6 +225,10 @@ router.get('/', function (req, res, next) {
       }
     });
   });
+}
+
+router.get('/', function (req, res, next) {    
+  runKeenQueries();  
     
   res.render('index', {
     title: 'devbeers Dashboard'

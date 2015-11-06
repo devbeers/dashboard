@@ -37,9 +37,37 @@ var allTimeUniqueSignupsChart = new Keen.Dataviz()
   })
   .prepare();
   
-var monthlySignupCountChart = new Keen.Dataviz()
-  .el(document.getElementById('monthly-signups-sp'))
+var monthlySignupsAndCheckinsChart = new Keen.Dataviz()
+  .el(document.getElementById('monthly-signups-and-checkins-sp'))
   .chartType('columnchart')
+  .prepare();
+  
+var averageCheckInPercentageChart = new Keen.Dataviz()
+  .el(document.getElementById('average-check-in-percentage'))
+  .chartType('metric')
+  .title('Check-in Rate')
+  .colors(['#49c5b1'])
+  .chartOptions({suffix: '%'})
+  .prepare();
+  
+var averageSignupsChart = new Keen.Dataviz()
+  .el(document.getElementById('average-signups'))
+  .chartType('metric')
+  .title('Average Signups')
+  .colors(['#49c5b1'])
+  .chartOptions({
+    prettyNumber: false
+  })
+  .prepare();
+
+var averageCheckinsChart = new Keen.Dataviz()
+  .el(document.getElementById('average-checkins'))
+  .chartType('metric')
+  .title('Average Check-ins')
+  .colors(['#49c5b1'])
+  .chartOptions({
+    prettyNumber: false
+  })
   .prepare();
 
 var keenObjs = {};
@@ -48,14 +76,20 @@ keenObjs.npsScoreAverageChart = npsScoreAverageChart;
 keenObjs.npsScoreParticipantsChart = npsScoreParticipantsChart;
 keenObjs.allTimeSignupsChart = allTimeSignupsChart;
 keenObjs.allTimeUniqueSignupsChart = allTimeUniqueSignupsChart;
-keenObjs.monthlySignupCountChart = monthlySignupCountChart;
+keenObjs.monthlySignupsAndCheckinsChart = monthlySignupsAndCheckinsChart;
+keenObjs.averageCheckInPercentageChart = averageCheckInPercentageChart;
+keenObjs.averageSignupsChart = averageSignupsChart;
+keenObjs.averageCheckinsChart = averageCheckinsChart;
 
 function drawObj(queryResult) {
+  console.log(queryResult);
   Keen.ready(function() {
-    keenObjs[queryResult.name + 'Chart']
-      .parseRawData({
-        result: queryResult.result
-      })
-      .render();
+    if(queryResult) {
+      keenObjs[queryResult.name + 'Chart']
+        .parseRawData({
+          result: queryResult.result
+        })
+        .render();
+    }
   });
 }
