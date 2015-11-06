@@ -28,7 +28,7 @@ var config = {
     app: {
       name: 'devbeers-dashboard-express'
     },
-    port: 3000,
+    port: process.env.PORT,
     db: process.env.MONGODB_URI
   }
 };
