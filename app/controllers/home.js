@@ -9,12 +9,12 @@ var express = require('express'),
 
 var overallTimeframe = 'this_2_years';
 
-var keen_client_surveys = new Keen({
+var keenClientSurveys = new Keen({
   projectId: process.env.KEEN_CLIENT_SURVEYS_PROJECT_ID,
   readKey: process.env.KEEN_CLIENT_SURVEYS_READ_KEY
 });
 
-var keen_participants_list = new Keen({
+var keenParticipantsList = new Keen({
   projectId: process.env.KEEN_PARTICIPANTS_LIST_PROJECT_ID,
   readKey: process.env.KEEN_PARTICIPANTS_LIST_READ_KEY
 });
@@ -78,6 +78,63 @@ npsScoreQuery.callback = function(err, res) {
   }
 };
 
+var keenSurveyQueries = [npsScoreAverage, npsScoreQuery];
+
+var allTimeSignups = { name: 'allTimeSignups' };
+allTimeSignups.queries = [new Keen.Query('count', {
+  eventCollection: 'Event Participants',
+  targetProperty: 'keen.timestamp',
+  timeframe: overallTimeframe
+})];
+allTimeSignups.callback = function(err, res) {
+  if (err) throw('error charting: ' + err);
+  else {
+    var queryResult = res.result;
+    
+    saveAndEmitQuery(allTimeSignups.name, queryResult);
+  }
+};
+
+var allTimeUniqueSignups = { name: 'allTimeUniqueSignups' };
+allTimeUniqueSignups.queries = [new Keen.Query('count_unique', {
+  eventCollection: 'Event Participants',
+  targetProperty: 'email',
+  timeframe: overallTimeframe
+})];
+allTimeUniqueSignups.callback = function(err, res) {
+  if (err) throw('error charting: ' + err);
+  else {
+    var queryResult = res.result;
+    
+    saveAndEmitQuery(allTimeUniqueSignups.name, queryResult);
+  }
+};
+
+var monthlySignupCount = { name: 'monthlySignupCount' };
+monthlySignupCount.queries = [new Keen.Query('count', {
+  eventCollection: 'Event Participants',
+  targetProperty: 'keen.timestamp',
+  timeframe: overallTimeframe,
+  group_by: "edition",
+  filters: [
+    {
+      "property_name": "city",
+      "operator": "eq",
+      "property_value": 'SP'
+    }
+  ]
+})];
+monthlySignupCount.callback = function(err, res) {
+  if (err) throw('error charting: ' + err);
+  else {
+    var queryResult = res.result;
+    
+    saveAndEmitQuery(monthlySignupCount.name, queryResult);
+  }
+};
+
+var keenParticipantQueries = [allTimeSignups, allTimeUniqueSignups, monthlySignupCount];
+
 function saveAndEmitQuery(queryName, queryResult) {
   var query = new QueryResult();
   query.name = queryName;
@@ -92,20 +149,33 @@ function saveAndEmitQuery(queryName, queryResult) {
   });
 }
 
-var keenQueries = [npsScoreAverage, npsScoreQuery];
-
 module.exports = function (app, server) {
   io = require('socket.io')(server);
   app.use('/', router);
 };
 
 router.get('/', function (req, res, next) {  
-  keenQueries.forEach(function(query) {
+  keenSurveyQueries.forEach(function(query) {
     QueryResult.findOne({ 'name': query.name }, function(err, queryResult) {
       if (err) throw('error saving: ' + err);
       if (!queryResult) {
         Keen.ready(function() {  
-          keen_client_surveys.run(query.queries, query.callback);
+          keenClientSurveys.run(query.queries, query.callback);
+        });
+      } else {
+        io.on('connection', function(socket) {
+          io.emit('message', queryResult);
+        });
+      }
+    });
+  });
+  
+  keenParticipantQueries.forEach(function(query) {
+    QueryResult.findOne({ 'name': query.name }, function(err, queryResult) {
+      if (err) throw('error saving: ' + err);
+      if (!queryResult) {
+        Keen.ready(function() {  
+          keenParticipantsList.run(query.queries, query.callback);
         });
       } else {
         io.on('connection', function(socket) {
