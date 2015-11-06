@@ -4,7 +4,8 @@ var mongoose = require('mongoose'),
 
 var QueryResultSchema = new Schema({
   name: String,
-  result: Schema.Types.Mixed
+  result: Schema.Types.Mixed,
+  createdAt: { type: Date, expires: '1d', default: Date.now }
 });
 
 QueryResultSchema.virtual('date')
