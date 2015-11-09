@@ -82,7 +82,6 @@ keenObjs.averageSignupsChart = averageSignupsChart;
 keenObjs.averageCheckinsChart = averageCheckinsChart;
 
 function drawObj(queryResult) {
-  console.log(queryResult);
   Keen.ready(function() {
     if(queryResult) {
       keenObjs[queryResult.name + 'Chart']
