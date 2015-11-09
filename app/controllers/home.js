@@ -8,6 +8,7 @@ var express = require('express'),
   io;
 
 var OVERALL_TIMEFRAME = 'this_2_years';
+var QUERY_CITY;
 
 var keenClientSurveys = new Keen({
   projectId: process.env.KEEN_CLIENT_SURVEYS_PROJECT_ID,
@@ -150,7 +151,11 @@ monthlySignupAndCheckins.callback = function(err, res) {
   var averageCheckinsResult = 0;
 
   while (i < result1.length) {
-    data[i] = { category: result1[i].event_id, signups: result1[i].result };
+    if (QUERY_CITY) {
+      data[i] = { category: result1[i].event_id.substring(2), signups: result1[i].result };
+    } else {
+      data[i] = { category: result1[i].event_id, signups: result1[i].result };
+    }
     
     averageSignupsResult += result1[i].result;
     
@@ -165,9 +170,24 @@ monthlySignupAndCheckins.callback = function(err, res) {
         checkInPercentage += editionNoShowPercentage;
       }
       j++;
+    } else {
+      data[i].checkins = 0;
     }
     i++;
   }
+  
+  if (QUERY_CITY) {
+    data.sort(function(a, b) {
+      if (parseInt(a.category) < parseInt(b.category)) {
+        return -1;
+      }
+      if (parseInt(a.category) > parseInt(b.category)) {
+        return 1;
+      }
+      return 0;
+    });
+  }
+  
   saveAndEmitQuery(monthlySignupAndCheckins.name, data);
   saveAndEmitQuery(averageCheckInPercentage.name, (checkInPercentage / result2.length).toFixed(2) * 100);
   saveAndEmitQuery(averageSignups.name, Math.round((averageSignupsResult / result1.length) * 100) / 100);
@@ -180,6 +200,8 @@ function saveAndEmitQuery(queryName, queryResult) {
   var query = new QueryResult();
   query.name = queryName;
   query.result = queryResult;
+  query.city = QUERY_CITY;
+  
   query.save(function (err) {
     if (err) throw('error saving: ' + err);
     else {
@@ -195,40 +217,56 @@ module.exports = function (app, server) {
   app.use('/', router);
 };
 
-function runKeenQueries() {
-  keenSurveyQueries.forEach(function(query) {
-    QueryResult.findOne({ 'name': query.name }, function(err, queryResult) {
-      if (err) throw('error saving: ' + err);
-      if (!queryResult && query.queries && query.callback) {
-        Keen.ready(function() {  
-          keenClientSurveys.run(query.queries, query.callback);
-        });
-      } else {
-        io.on('connection', function(socket) {
-          io.emit('message', queryResult);
-        });
+function runQueryForKeenReady(query, keenClient) {
+  return function() {
+    keenClient.run(query.queries, query.callback);
+  };
+}
+
+function runQuery(query, keenClient) {
+  return function(err, queryResult) {
+    if (err) throw('error finding: ' + err);
+    if (!queryResult) {
+      if (query.queries && query.callback) {
+        for(var i = 0; i < query.queries.length; i++) {
+          if(!query.queries[i].params.filters) {
+            query.queries[i].params.filters = [];
+          } else {
+            for(var j = 0; j < query.queries[i].params.filters.length; j++) {
+              if(query.queries[i].params.filters[j].property_name === 'city') {
+                query.queries[i].params.filters.splice(j, 1);
+              }
+            }
+            if(QUERY_CITY) {
+              query.queries[i].params.filters.push({
+                "property_name": "city",
+                "operator": "eq",
+                "property_value": QUERY_CITY
+              });
+            }
+          }
+        }
+        Keen.ready(runQueryForKeenReady(query, keenClient));
       }
-    });
-  });
-  
-  keenParticipantQueries.forEach(function(query) {
-    QueryResult.findOne({ 'name': query.name }, function(err, queryResult) {
-      if (err) throw('error saving: ' + err);
-      if (!queryResult && query.queries && query.callback) {
-        Keen.ready(function() {  
-          keenParticipantsList.run(query.queries, query.callback);
-        });
-      } else {
-        io.on('connection', function(socket) {
-          io.emit('message', queryResult);
-        });
-      }
-    });
-  });
+    } else {
+      io.on('connection', function(socket) {
+        io.emit('message', queryResult);
+      });
+    }
+  };
+}
+
+function runKeenQueries(keenQueries, keenClient) {
+  for(var i = 0; i < keenQueries.length; i++) {
+    var query = keenQueries[i];
+    QueryResult.findOne({ 'name': query.name, 'city': QUERY_CITY }, runQuery(query, keenClient));
+  }
 }
 
 router.get('/', function (req, res, next) {    
-  runKeenQueries();  
+  QUERY_CITY = req.query.city;
+  runKeenQueries(keenSurveyQueries, keenClientSurveys);  
+  runKeenQueries(keenParticipantQueries, keenParticipantsList);  
     
   res.render('index', {
     title: 'devbeers Dashboard'
