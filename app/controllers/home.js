@@ -7,7 +7,7 @@ var express = require('express'),
   Keen = require('keen-js'),
   io;
 
-var overallTimeframe = 'this_2_years';
+var OVERALL_TIMEFRAME = 'this_2_years';
 
 var keenClientSurveys = new Keen({
   projectId: process.env.KEEN_CLIENT_SURVEYS_PROJECT_ID,
@@ -23,7 +23,7 @@ var npsScoreAverage = { name: 'npsScoreAverage' };
 npsScoreAverage.queries = [new Keen.Query('average', {
   eventCollection: 'Participants Answers',
   targetProperty: 'nps_score',
-  timeframe: overallTimeframe
+  timeframe: OVERALL_TIMEFRAME
 })];
 npsScoreAverage.callback = function(err, res) {
   if (err) throw('error charting: ' + err);
@@ -38,33 +38,33 @@ npsScoreAverage.callback = function(err, res) {
 var npsScoreCount = new Keen.Query('count', {
   eventCollection: 'Participants Answers',
   targetProperty: 'nps_score',
-  timeframe: overallTimeframe
+  timeframe: OVERALL_TIMEFRAME
 });
 
 var npsScoreDetractors = new Keen.Query('count', {
   eventCollection: 'Participants Answers',
   targetProperty: 'nps_score',
-  timeframe: overallTimeframe,
+  timeframe: OVERALL_TIMEFRAME,
   filters: [
-          {
-            "property_name" : "nps_score",
-            "operator" : "lt",
-            "property_value" : 7
-          }
-       ]
+    {
+      "property_name" : "nps_score",
+      "operator" : "lt",
+      "property_value" : 7
+    }
+   ]
 });
 
 var npsScorePromoters = new Keen.Query('count', {
   eventCollection: 'Participants Answers',
   targetProperty: 'nps_score',
-  timeframe: overallTimeframe,
+  timeframe: OVERALL_TIMEFRAME,
   filters: [
-          {
-            "property_name" : "nps_score",
-            "operator" : "gt",
-            "property_value" : 8
-          }
-       ]
+    {
+      "property_name" : "nps_score",
+      "operator" : "gt",
+      "property_value" : 8
+    }
+   ]
 });
 
 var npsScoreQuery = { name: 'npsScoreParticipants' };
@@ -84,7 +84,7 @@ var allTimeSignups = { name: 'allTimeSignups' };
 allTimeSignups.queries = [new Keen.Query('count', {
   eventCollection: 'Event Participants',
   targetProperty: 'keen.timestamp',
-  timeframe: overallTimeframe
+  timeframe: OVERALL_TIMEFRAME
 })];
 allTimeSignups.callback = function(err, res) {
   if (err) throw('error charting: ' + err);
@@ -99,7 +99,7 @@ var allTimeUniqueSignups = { name: 'allTimeUniqueSignups' };
 allTimeUniqueSignups.queries = [new Keen.Query('count_unique', {
   eventCollection: 'Event Participants',
   targetProperty: 'email',
-  timeframe: overallTimeframe
+  timeframe: OVERALL_TIMEFRAME
 })];
 allTimeUniqueSignups.callback = function(err, res) {
   if (err) throw('error charting: ' + err);
@@ -116,7 +116,7 @@ var monthlySignupAndCheckins = { name: 'monthlySignupsAndCheckins' };
 var monthlySignupCountQuery = new Keen.Query('count', {
   eventCollection: 'Event Participants',
   targetProperty: 'keen.timestamp',
-  timeframe: overallTimeframe,
+  timeframe: OVERALL_TIMEFRAME,
   group_by: "event_id"
 });
 
@@ -124,7 +124,7 @@ var monthlySignupCountQuery = new Keen.Query('count', {
 var monthlyCheckinCountQuery = new Keen.Query('count', {
   eventCollection: 'Event Participants',
   targetProperty: 'keen.timestamp',
-  timeframe: overallTimeframe,
+  timeframe: OVERALL_TIMEFRAME,
   group_by: "event_id",
   filters: [
     {
