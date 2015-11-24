@@ -224,24 +224,23 @@ function runQueryForKeenReady(query, keenClient) {
 function runQuery(query, keenClient) {
   return function(err, queryResult) {
     if (err) throw('error finding: ' + err);
-    if (!queryResult) {
+   if (!queryResult) {
       if (query.queries && query.callback) {
         for(var i = 0; i < query.queries.length; i++) {
           if(!query.queries[i].params.filters) {
             query.queries[i].params.filters = [];
-          } else {
-            for(var j = 0; j < query.queries[i].params.filters.length; j++) {
-              if(query.queries[i].params.filters[j].property_name === 'city') {
-                query.queries[i].params.filters.splice(j, 1);
-              }
+          }
+          for(var j = 0; j < query.queries[i].params.filters.length; j++) {
+            if(query.queries[i].params.filters[j].property_name === 'city') {
+              query.queries[i].params.filters.splice(j, 1);
             }
-            if (!isEmpty(QUERY_CITY)) {
-              query.queries[i].params.filters.push({
-                "property_name": "city",
-                "operator": "eq",
-                "property_value": QUERY_CITY
-              });
-            }
+          }
+          if (!isEmpty(QUERY_CITY)) {
+            query.queries[i].params.filters.push({
+              "property_name": "city",
+              "operator": "eq",
+              "property_value": QUERY_CITY
+            });
           }
         }
         Keen.ready(runQueryForKeenReady(query, keenClient));
