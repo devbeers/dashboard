@@ -205,9 +205,7 @@ function saveAndEmitQuery(queryName, queryResult) {
   query.save(function (err) {
     if (err) throw('error saving: ' + err);
     else {
-      io.on('connection', function(socket) {
-        io.emit('message', query);
-      });
+      io.emit('message', query);
     }
   });
 }
@@ -249,9 +247,7 @@ function runQuery(query, keenClient) {
         Keen.ready(runQueryForKeenReady(query, keenClient));
       }
     } else {
-      io.on('connection', function(socket) {
-        io.emit('message', queryResult);
-      });
+      io.emit('message', queryResult);
     }
   };
 }
@@ -265,8 +261,10 @@ function runKeenQueries(keenQueries, keenClient) {
 
 router.get('/', function (req, res, next) {    
   QUERY_CITY = req.query.city;
-  runKeenQueries(keenSurveyQueries, keenClientSurveys);  
-  runKeenQueries(keenParticipantQueries, keenParticipantsList);  
+  io.on('connection', function() {
+    runKeenQueries(keenSurveyQueries, keenClientSurveys);  
+    runKeenQueries(keenParticipantQueries, keenParticipantsList);  
+  });
     
   res.render('index', {
     title: 'devbeers Dashboard'
