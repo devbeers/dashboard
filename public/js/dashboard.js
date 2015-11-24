@@ -1,7 +1,9 @@
 var socket = io();
-socket.on('message', function(msg) {
+socket.on('message' + window.location.search.slice(-2), function(msg) {
   drawObj(msg);
 });
+
+console.log('message' + window.location.search.slice(-2));
 
 var npsScoreAverageChart = new Keen.Dataviz()
   .el(document.getElementById('nps-score-participants-average'))

@@ -8,7 +8,7 @@ var express = require('express'),
   io;
 
 var OVERALL_TIMEFRAME = 'this_2_years';
-var QUERY_CITY;
+var QUERY_CITY = "";
 
 var keenClientSurveys = new Keen({
   projectId: process.env.KEEN_CLIENT_SURVEYS_PROJECT_ID,
@@ -151,7 +151,7 @@ monthlySignupAndCheckins.callback = function(err, res) {
   var averageCheckinsResult = 0;
 
   while (i < result1.length) {
-    if (QUERY_CITY) {
+    if (!isEmpty(QUERY_CITY)) {
       data[i] = { category: result1[i].event_id.substring(2), signups: result1[i].result };
     } else {
       data[i] = { category: result1[i].event_id, signups: result1[i].result };
@@ -176,7 +176,7 @@ monthlySignupAndCheckins.callback = function(err, res) {
     i++;
   }
   
-  if (QUERY_CITY) {
+  if (!isEmpty(QUERY_CITY)) {
     data.sort(function(a, b) {
       if (parseInt(a.category) < parseInt(b.category)) {
         return -1;
@@ -205,7 +205,7 @@ function saveAndEmitQuery(queryName, queryResult) {
   query.save(function (err) {
     if (err) throw('error saving: ' + err);
     else {
-      io.emit('message', query);
+      io.emit('message' + QUERY_CITY, query);
     }
   });
 }
@@ -235,7 +235,7 @@ function runQuery(query, keenClient) {
                 query.queries[i].params.filters.splice(j, 1);
               }
             }
-            if(QUERY_CITY) {
+            if (!isEmpty(QUERY_CITY)) {
               query.queries[i].params.filters.push({
                 "property_name": "city",
                 "operator": "eq",
@@ -247,7 +247,7 @@ function runQuery(query, keenClient) {
         Keen.ready(runQueryForKeenReady(query, keenClient));
       }
     } else {
-      io.emit('message', queryResult);
+      io.emit('message' + QUERY_CITY, queryResult);
     }
   };
 }
@@ -259,8 +259,13 @@ function runKeenQueries(keenQueries, keenClient) {
   }
 }
 
-router.get('/', function (req, res, next) {    
-  QUERY_CITY = req.query.city;
+function isEmpty(str) {
+  return (!str || 0 === str.length);
+}
+
+router.get('/', function (req, res, next) {
+  QUERY_CITY = req.query.city ? req.query.city : "";
+  
   io.on('connection', function() {
     runKeenQueries(keenSurveyQueries, keenClientSurveys);  
     runKeenQueries(keenParticipantQueries, keenParticipantsList);  
