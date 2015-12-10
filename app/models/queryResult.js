@@ -6,7 +6,8 @@ var QueryResultSchema = new Schema({
   name: String,
   result: Schema.Types.Mixed,
   createdAt: { type: Date, expires: '1d', default: Date.now },
-  city: String
+  city: String,
+  timeframe: Schema.Types.Mixed
 });
 
 QueryResultSchema.virtual('date')

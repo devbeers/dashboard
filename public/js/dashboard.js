@@ -1,9 +1,14 @@
-var socket = io();
+var socket = io('http://localhost');
 socket.on('message' + window.location.search.slice(-2), function(msg) {
   drawObj(msg);
 });
 
-console.log('message' + window.location.search.slice(-2));
+var totalEditionsChart = new Keen.Dataviz()
+  .el(document.getElementById('total-editions'))
+  .chartType('metric')
+  .colors(['#49c5b1'])
+  .title('Number of Editions')
+  .prepare();
 
 var npsScoreAverageChart = new Keen.Dataviz()
   .el(document.getElementById('nps-score-participants-average'))
@@ -74,6 +79,7 @@ var averageCheckinsChart = new Keen.Dataviz()
 
 var keenObjs = {};
 
+keenObjs.totalEditionsChart = totalEditionsChart;
 keenObjs.npsScoreAverageChart = npsScoreAverageChart;
 keenObjs.npsScoreParticipantsChart = npsScoreParticipantsChart;
 keenObjs.allTimeSignupsChart = allTimeSignupsChart;

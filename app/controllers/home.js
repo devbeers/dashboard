@@ -7,7 +7,10 @@ var express = require('express'),
   Keen = require('keen-js'),
   io;
 
-var OVERALL_TIMEFRAME = 'this_2_years';
+var OVERALL_TIMEFRAME = {
+  'start': new Date('November 1 2013').toISOString(),
+  'end': new Date().toISOString()
+};
 var QUERY_CITY = "";
 
 var keenClientSurveys = new Keen({
@@ -80,6 +83,21 @@ npsScoreQuery.callback = function(err, res) {
 };
 
 var keenSurveyQueries = [npsScoreAverage, npsScoreQuery];
+
+var totalEditions = { name: 'totalEditions' };
+totalEditions.queries = [new Keen.Query('count_unique', {
+  eventCollection: 'Event Participants',
+  targetProperty: 'event_id',
+  timeframe: OVERALL_TIMEFRAME
+})];
+totalEditions.callback = function(err, res) {
+  if (err) throw('error charting: ' + err);
+  else {
+    var queryResult = res.result;
+    
+    saveAndEmitQuery(totalEditions.name, queryResult);
+  }
+};
 
 var allTimeSignups = { name: 'allTimeSignups' };
 allTimeSignups.queries = [new Keen.Query('count', {
@@ -194,26 +212,23 @@ monthlySignupAndCheckins.callback = function(err, res) {
   saveAndEmitQuery(averageCheckins.name, Math.round((averageCheckinsResult / result2.length) * 100) / 100);
 };
 
-var keenParticipantQueries = [allTimeSignups, allTimeUniqueSignups, monthlySignupAndCheckins, averageCheckInPercentage, averageSignups, averageCheckins];
+var keenParticipantQueries = [totalEditions, allTimeSignups, allTimeUniqueSignups, monthlySignupAndCheckins, averageCheckInPercentage, averageSignups, averageCheckins];
 
 function saveAndEmitQuery(queryName, queryResult) {
   var query = new QueryResult();
   query.name = queryName;
   query.result = queryResult;
   query.city = QUERY_CITY;
+  query.timeframe = OVERALL_TIMEFRAME;
   
   query.save(function (err) {
-    if (err) throw('error saving: ' + err);
-    else {
+    if (err) {
+      throw('error saving: ' + err);
+    } else {
       io.emit('message' + QUERY_CITY, query);
     }
   });
 }
-
-module.exports = function (app, server) {
-  io = require('socket.io')(server);
-  app.use('/', router);
-};
 
 function runQueryForKeenReady(query, keenClient) {
   return function() {
@@ -224,7 +239,15 @@ function runQueryForKeenReady(query, keenClient) {
 function runQuery(query, keenClient) {
   return function(err, queryResult) {
     if (err) throw('error finding: ' + err);
-   if (!queryResult) {
+    if (!queryResult) {
+      // update queries timeframe property
+      if(query.queries) {
+        for (var k = 0; k < query.queries.length; k++) {
+          query.queries[k].params.timeframe = OVERALL_TIMEFRAME;
+        }
+      }
+      
+      // clean out 'city' filter in case the user wants to see overall info
       if (query.queries && query.callback) {
         for(var i = 0; i < query.queries.length; i++) {
           if(!query.queries[i].params.filters) {
@@ -235,6 +258,7 @@ function runQuery(query, keenClient) {
               query.queries[i].params.filters.splice(j, 1);
             }
           }
+          // add new 'city' filter if there is one
           if (!isEmpty(QUERY_CITY)) {
             query.queries[i].params.filters.push({
               "property_name": "city",
@@ -254,6 +278,7 @@ function runQuery(query, keenClient) {
 function runKeenQueries(keenQueries, keenClient) {
   for(var i = 0; i < keenQueries.length; i++) {
     var query = keenQueries[i];
+    //QueryResult.findOne({ 'name': query.name, 'city': QUERY_CITY, 'timeframe': OVERALL_TIMEFRAME }, runQuery(query, keenClient));
     QueryResult.findOne({ 'name': query.name, 'city': QUERY_CITY }, runQuery(query, keenClient));
   }
 }
@@ -264,8 +289,15 @@ function isEmpty(str) {
 
 router.get('/', function (req, res, next) {
   QUERY_CITY = req.query.city ? req.query.city : "";
+  if (req.query.startDate && req.query.endDate) {
+    OVERALL_TIMEFRAME = {
+      "start": new Date(req.query.startDate).toISOString(),
+      "end": new Date(req.query.endDate).toISOString()
+    };
+  }
   
   io.on('connection', function() {
+    console.log('HELLO');
     runKeenQueries(keenSurveyQueries, keenClientSurveys);  
     runKeenQueries(keenParticipantQueries, keenParticipantsList);  
   });
@@ -274,3 +306,8 @@ router.get('/', function (req, res, next) {
     title: 'devbeers Dashboard'
   });
 });
+
+module.exports = function (app, server) {
+  io = require('socket.io')(server);
+  app.use('/', router);
+};
