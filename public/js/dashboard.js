@@ -1,5 +1,11 @@
-var socket = io('http://localhost');
-socket.on('message' + window.location.search.slice(-2), function(msg) {
+var socket = io.connect();
+var city = '';
+if (window.location.search.slice(-2) === 'SP' ||
+    window.location.search.slice(-2) === 'BH' || 
+    window.location.search.slice(-2) === 'RJ') {
+  city = window.location.search.slice(-2);
+}
+socket.on('message' + city, function(msg) {
   drawObj(msg);
 });
 

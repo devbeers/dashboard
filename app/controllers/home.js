@@ -9,7 +9,7 @@ var express = require('express'),
 
 var OVERALL_TIMEFRAME = {
   'start': new Date('November 1 2013').toISOString(),
-  'end': new Date().toISOString()
+  'end': new Date(new Date().setHours(0, 0, 0, 0)).toISOString()
 };
 var QUERY_CITY = "";
 
@@ -278,8 +278,7 @@ function runQuery(query, keenClient) {
 function runKeenQueries(keenQueries, keenClient) {
   for(var i = 0; i < keenQueries.length; i++) {
     var query = keenQueries[i];
-    //QueryResult.findOne({ 'name': query.name, 'city': QUERY_CITY, 'timeframe': OVERALL_TIMEFRAME }, runQuery(query, keenClient));
-    QueryResult.findOne({ 'name': query.name, 'city': QUERY_CITY }, runQuery(query, keenClient));
+    QueryResult.findOne({ 'name': query.name, 'city': QUERY_CITY, 'timeframe': OVERALL_TIMEFRAME }, runQuery(query, keenClient));
   }
 }
 
@@ -294,20 +293,26 @@ router.get('/', function (req, res, next) {
       "start": new Date(req.query.startDate).toISOString(),
       "end": new Date(req.query.endDate).toISOString()
     };
+  } else {
+    OVERALL_TIMEFRAME = {
+      'start': new Date('November 1 2013').toISOString(),
+      'end': new Date(new Date().setHours(0, 0, 0, 0)).toISOString()
+    };
   }
   
-  io.on('connection', function() {
-    console.log('HELLO');
-    runKeenQueries(keenSurveyQueries, keenClientSurveys);  
-    runKeenQueries(keenParticipantQueries, keenParticipantsList);  
-  });
-    
   res.render('index', {
-    title: 'devbeers Dashboard'
+    title: 'devbeers Dashboard',
+    CITY: QUERY_CITY
   });
 });
 
 module.exports = function (app, server) {
   io = require('socket.io')(server);
+  
+  io.on('connection', function(socket) {
+    runKeenQueries(keenSurveyQueries, keenClientSurveys);  
+    runKeenQueries(keenParticipantQueries, keenParticipantsList);
+  });
+  
   app.use('/', router);
 };
