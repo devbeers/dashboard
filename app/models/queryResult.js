@@ -7,7 +7,10 @@ var QueryResultSchema = new Schema({
   result: Schema.Types.Mixed,
   createdAt: { type: Date, expires: '1d', default: Date.now },
   city: String,
-  timeframe: Schema.Types.Mixed
+  timeframe: {
+    start: String,
+    end: String
+  }
 });
 
 QueryResultSchema.virtual('date')
