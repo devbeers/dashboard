@@ -82,6 +82,11 @@ var averageCheckinsChart = new Keen.Dataviz()
     prettyNumber: false
   })
   .prepare();
+  
+var programmingLanguagesChart = new Keen.Dataviz()
+  .el(document.getElementById('programming-languages'))
+  .chartType('columnchart')
+  .prepare();
 
 var keenObjs = {};
 
@@ -94,6 +99,7 @@ keenObjs.monthlySignupsAndCheckinsChart = monthlySignupsAndCheckinsChart;
 keenObjs.averageCheckInPercentageChart = averageCheckInPercentageChart;
 keenObjs.averageSignupsChart = averageSignupsChart;
 keenObjs.averageCheckinsChart = averageCheckinsChart;
+keenObjs.programmingLanguagesChart = programmingLanguagesChart;
 
 function drawObj(queryResult) {
   Keen.ready(function() {
