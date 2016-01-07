@@ -5,6 +5,7 @@ var express = require('express'),
   mongoose = require('mongoose'),
   QueryResult = mongoose.model('QueryResult'),
   Keen = require('keen-js'),
+  _ = require('lodash'),
   io;
 
 var OVERALL_TIMEFRAME = {
@@ -81,8 +82,6 @@ npsScoreQuery.callback = function(err, res) {
     saveAndEmitQuery(npsScoreQuery.name, queryResult);
   }
 };
-
-var keenSurveyQueries = [npsScoreAverage, npsScoreQuery];
 
 var totalEditions = { name: 'totalEditions' };
 totalEditions.queries = [new Keen.Query('count_unique', {
@@ -212,7 +211,100 @@ monthlySignupAndCheckins.callback = function(err, res) {
   saveAndEmitQuery(averageCheckins.name, Math.round((averageCheckinsResult / result2.length) * 100) / 100);
 };
 
-var keenParticipantQueries = [totalEditions, allTimeSignups, allTimeUniqueSignups, monthlySignupAndCheckins, averageCheckInPercentage, averageSignups, averageCheckins];
+var programmingLanguages = { name: 'programmingLanguages' };
+
+// JavaScript, Objective-C/Swift, Java, C#, C++, Ruby, Python
+var allProgrammingColumnsQuery = new Keen.Query('count_unique', {
+  eventCollection: 'Programming Languages',
+  timeframe: OVERALL_TIMEFRAME,
+  target_property: 'email',
+  group_by: "programming_language",
+  filters: [{
+    "property_name": "programming_language",
+    "operator": "ne",
+    "property_value": null
+  }]
+});
+
+var javaScriptQuery = new Keen.Query('count_unique', {
+  eventCollection: 'Programming Languages',
+  timeframe: OVERALL_TIMEFRAME,
+  target_property: 'email',
+  group_by: "email",
+  filters: [{
+      "property_name": "programming_language",
+      "operator": "eq",
+      "property_value": "JavaScript"
+    }]
+});
+
+var nodeJSQuery = new Keen.Query('count');
+nodeJSQuery.params = _.cloneDeep(javaScriptQuery.params);
+nodeJSQuery.params.filters[0].property_value = 'Node.js';
+
+var rubyQuery = new Keen.Query('count');
+rubyQuery.params = _.cloneDeep(javaScriptQuery.params);
+rubyQuery.params.filters[0].property_value = 'Ruby';
+
+var pythonQuery = new Keen.Query('count');
+pythonQuery.params = _.cloneDeep(javaScriptQuery.params);
+pythonQuery.params.filters[0].property_value = 'Python';
+
+var phpQuery = new Keen.Query('count');
+phpQuery.params = _.cloneDeep(javaScriptQuery.params);
+phpQuery.params.filters[0].property_value = 'PHP';
+
+var cSharpQuery = new Keen.Query('count');
+cSharpQuery.params = _.cloneDeep(javaScriptQuery.params);
+cSharpQuery.params.filters[0].property_value = 'C#';
+
+var javaQuery = new Keen.Query('count');
+javaQuery.params = _.cloneDeep(javaScriptQuery.params);
+javaQuery.params.filters[0].property_value = 'Java';
+
+var objcQuery = new Keen.Query('count');
+objcQuery.params = _.cloneDeep(javaScriptQuery.params);
+objcQuery.params.filters[0].property_value = 'Objective-C';
+
+programmingLanguages.queries = [allProgrammingColumnsQuery, javaScriptQuery, nodeJSQuery];
+programmingLanguages.callback = function(err, res) {
+  var resultArray = res[0].result;
+  
+  var jsAndNodeArray = res[1].result.concat(res[2].result);
+  var jsAndNodeUniq = _.uniq(jsAndNodeArray, 'email');
+  var jsAndNodeValue = jsAndNodeArray.length - jsAndNodeUniq.length;
+  
+  var nodeTotal = 0;
+  for(var i = 0; i < resultArray.length; i++) {
+    if(resultArray[i].programming_language === 'Node.js') {
+      nodeTotal = resultArray[i].result;
+      resultArray.splice(i, 1);
+      break;
+    }
+  }
+  for(var j = 0; j < resultArray.length; j++) {
+    if(resultArray[j].programming_language === 'JavaScript') {
+      resultArray[j].result += nodeTotal - jsAndNodeValue;
+    }
+  }
+  
+  for(var k = 0; k < resultArray.length; k++) {
+    if(resultArray[k].programming_language === 'HTML5' ||
+       resultArray[k].programming_language === 'Android' || 
+       resultArray[k].programming_language === '.NET') {
+      resultArray.splice(k, 1);
+      k--;
+    }
+  }
+  
+  console.log(resultArray);
+  
+  saveAndEmitQuery(programmingLanguages.name, resultArray);
+};
+
+var keenSurveyQueries = [npsScoreAverage, npsScoreQuery];
+
+var keenParticipantQueries = [totalEditions, allTimeSignups, allTimeUniqueSignups, monthlySignupAndCheckins, averageCheckInPercentage, averageSignups, averageCheckins, programmingLanguages];
 
 function saveAndEmitQuery(queryName, queryResult) {
   var query = new QueryResult();
@@ -240,7 +332,7 @@ function runQuery(query, keenClient) {
   return function(err, queryResult) {
     if (err) throw('error finding: ' + err);
     if (!queryResult) {
-      // update queries timeframe property
+      //update queries timeframe property
       if(query.queries) {
         for (var k = 0; k < query.queries.length; k++) {
           query.queries[k].params.timeframe = OVERALL_TIMEFRAME;
