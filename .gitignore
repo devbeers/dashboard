@@ -15,3 +15,5 @@ pids
 .grunt
 .lock-wscript
 .npm
+
+public/js/superagenttest.js

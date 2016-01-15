@@ -398,6 +398,39 @@ router.get('/', function (req, res, next) {
   });
 });
 
+router.get('/superagenttest', function(req, res, next) {
+  QUERY_CITY = req.query.city ? req.query.city : "";
+  OVERALL_TIMEFRAME = {
+    'start': new Date('November 1 2013').toISOString(),
+    'end': new Date(new Date().setHours(0, 0, 0, 0)).toISOString()
+  };
+
+  res.render('superagent', {
+    title: 'neto dashboard',
+    CITY: QUERY_CITY
+  });
+//   var npsScoreAverage = {
+//     name: 'npsScoreAverage',
+//     queries: [new Keen.Query('average', {
+//       eventCollection: 'Participants Answers',
+//       targetProperty: 'nps_score',
+//       timeframe: OVERALL_TIMEFRAME
+//     })],
+//     callback: function(err, res) {
+//       if (err) throw('error charting: ' + err);
+//       else {
+//         var queryResult = res.result;
+//         var query = new QueryResult();
+//         query.name = queryName;
+//         query.result = queryResult;
+//         query.city = QUERY_CITY;
+//         query.timeframe = OVERALL_TIMEFRAME;
+        
+//         saveAndEmitQuery(npsScoreAverage.name, queryResult);
+//       }
+//     }};
+});
+
 module.exports = function (app, server) {
   io = require('socket.io')(server);
   

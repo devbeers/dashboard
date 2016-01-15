@@ -17,6 +17,13 @@ module.exports = function (grunt) {
         file: 'app.js'
       }
     },
+    browserify: {
+      dist: {
+        files: {
+          'public/js/superagenttest.js': ['client/superagenttest.js'],
+        }
+      }
+    },
     watch: {
       options: {
         nospawn: true,
@@ -28,7 +35,7 @@ module.exports = function (grunt) {
           'app/**/*.js',
           'config/*.js'
         ],
-        tasks: ['develop', 'delayed-livereload']
+        tasks: ['develop', 'browserify', 'delayed-livereload']
       },
       css: {
         files: [
@@ -52,6 +59,8 @@ module.exports = function (grunt) {
   files = grunt.config('watch.js.files');
   files = grunt.file.expand(files);
 
+  grunt.loadNpmTasks('grunt-browserify');
+
   grunt.registerTask('delayed-livereload', 'Live reload after the node server has restarted.', function () {
     var done = this.async();
     setTimeout(function () {
@@ -68,6 +77,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('default', [
     'develop',
+    'browserify',
     'watch'
   ]);
 };
