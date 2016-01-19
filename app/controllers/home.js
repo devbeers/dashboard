@@ -398,6 +398,26 @@ router.get('/', function (req, res, next) {
   });
 });
 
+router.get('/npsScoreAverage', function(req, res, next) {
+  QUERY_CITY = req.query.city ? req.query.city : "";
+  OVERALL_TIMEFRAME = {
+    'start': new Date('November 1 2013').toISOString(),
+    'end': new Date(new Date().setHours(0, 0, 0, 0)).toISOString()
+  };
+
+  Keen.ready(function() {
+    keenClientSurveys.run(npsScoreAverage.queries, function(err, result) {
+      if (err) throw('error charting: ' + err);
+      else {
+        res.json({
+          name: npsScoreAverage.name,
+          result: result.result
+        });
+      }
+    });
+  });
+});
+
 router.get('/superagenttest', function(req, res, next) {
   QUERY_CITY = req.query.city ? req.query.city : "";
   OVERALL_TIMEFRAME = {

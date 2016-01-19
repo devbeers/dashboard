@@ -1,15 +1,11 @@
 var request = require('superagent');
 
-var socket = io.connect();
 var city = '';
 if (window.location.search.slice(-2) === 'SP' ||
     window.location.search.slice(-2) === 'BH' || 
     window.location.search.slice(-2) === 'RJ') {
     city = window.location.search.slice(-2);
 }
-socket.on('message' + city, function(msg) {
-    drawObj(msg);
-});
 
 var npsScoreAverageChart = new Keen.Dataviz()
     .el(document.getElementById('nps-score-participants-average'))
@@ -36,5 +32,11 @@ function drawObj(queryResult) {
 }
 
 window.onload = function() {
-    console.log(request);
+    request.get('/npsScoreAverage', function(err, res) {
+        if (err) {
+            console.log(err);
+        } else {
+            drawObj(res.body);
+        }
+    });
 }
