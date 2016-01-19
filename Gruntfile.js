@@ -33,6 +33,7 @@ module.exports = function (grunt) {
         files: [
           'app.js',
           'app/**/*.js',
+          'client/**/*.js',
           'config/*.js'
         ],
         tasks: ['develop', 'browserify', 'delayed-livereload']
