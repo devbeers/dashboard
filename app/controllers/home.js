@@ -34,7 +34,7 @@ npsScoreAverage.callback = function(err, res) {
   if (err) throw('error charting: ' + err);
   else {
     var queryResult = res.result;
-    
+
     saveAndEmitQuery(npsScoreAverage.name, queryResult);
   }
 };
@@ -78,7 +78,7 @@ npsScoreQuery.callback = function(err, res) {
   if (err) throw('error charting: ' + err);
   else {
     var queryResult = ((res[2].result - res[1].result) / res[0].result).toFixed(2) * 100;
-    
+
     saveAndEmitQuery(npsScoreQuery.name, queryResult);
   }
 };
@@ -93,7 +93,7 @@ totalEditions.callback = function(err, res) {
   if (err) throw('error charting: ' + err);
   else {
     var queryResult = res.result;
-    
+
     saveAndEmitQuery(totalEditions.name, queryResult);
   }
 };
@@ -108,7 +108,7 @@ allTimeSignups.callback = function(err, res) {
   if (err) throw('error charting: ' + err);
   else {
     var queryResult = res.result;
-    
+
     saveAndEmitQuery(allTimeSignups.name, queryResult);
   }
 };
@@ -123,7 +123,7 @@ allTimeUniqueSignups.callback = function(err, res) {
   if (err) throw('error charting: ' + err);
   else {
     var queryResult = res.result;
-    
+
     saveAndEmitQuery(allTimeUniqueSignups.name, queryResult);
   }
 };
@@ -173,13 +173,13 @@ monthlySignupAndCheckins.callback = function(err, res) {
     } else {
       data[i] = { category: result1[i].event_id, signups: result1[i].result };
     }
-    
+
     averageSignupsResult += result1[i].result;
-    
+
     if(result2[j] && result1[i].event_id === result2[j].event_id) {
       data[i].checkins = result2[j].result;
       averageCheckinsResult += result2[j].result;
-      
+
       // Calculate no show percentage
       var editionNoShowPercentage = result2[j].result / result1[i].result;
       // Don't add to overall edition percentage if value is smaller than 0.1
@@ -192,7 +192,7 @@ monthlySignupAndCheckins.callback = function(err, res) {
     }
     i++;
   }
-  
+
   if (!isEmpty(QUERY_CITY)) {
     data.sort(function(a, b) {
       if (parseInt(a.category) < parseInt(b.category)) {
@@ -204,7 +204,7 @@ monthlySignupAndCheckins.callback = function(err, res) {
       return 0;
     });
   }
-  
+
   saveAndEmitQuery(monthlySignupAndCheckins.name, data);
   saveAndEmitQuery(averageCheckInPercentage.name, (checkInPercentage / result2.length).toFixed(2) * 100);
   saveAndEmitQuery(averageSignups.name, Math.round((averageSignupsResult / result1.length) * 100) / 100);
@@ -269,11 +269,11 @@ objcQuery.params.filters[0].property_value = 'Objective-C';
 programmingLanguages.queries = [allProgrammingColumnsQuery, javaScriptQuery, nodeJSQuery];
 programmingLanguages.callback = function(err, res) {
   var resultArray = res[0].result;
-  
+
   var jsAndNodeArray = res[1].result.concat(res[2].result);
   var jsAndNodeUniq = _.uniq(jsAndNodeArray, 'email');
   var jsAndNodeValue = jsAndNodeArray.length - jsAndNodeUniq.length;
-  
+
   var nodeTotal = 0;
   for(var i = 0; i < resultArray.length; i++) {
     if(resultArray[i].programming_language === 'Node.js') {
@@ -287,18 +287,18 @@ programmingLanguages.callback = function(err, res) {
       resultArray[j].result += nodeTotal - jsAndNodeValue;
     }
   }
-  
+
   for(var k = 0; k < resultArray.length; k++) {
     if(resultArray[k].programming_language === 'HTML5' ||
-       resultArray[k].programming_language === 'Android' || 
+       resultArray[k].programming_language === 'Android' ||
        resultArray[k].programming_language === '.NET') {
       resultArray.splice(k, 1);
       k--;
     }
   }
-  
+
   console.log(resultArray);
-  
+
   saveAndEmitQuery(programmingLanguages.name, resultArray);
 };
 
@@ -312,7 +312,7 @@ function saveAndEmitQuery(queryName, queryResult) {
   query.result = queryResult;
   query.city = QUERY_CITY;
   query.timeframe = OVERALL_TIMEFRAME;
-  
+
   query.save(function (err) {
     if (err) {
       throw('error saving: ' + err);
@@ -338,7 +338,7 @@ function runQuery(query, keenClient) {
           query.queries[k].params.timeframe = OVERALL_TIMEFRAME;
         }
       }
-      
+
       // clean out 'city' filter in case the user wants to see overall info
       if (query.queries && query.callback) {
         for(var i = 0; i < query.queries.length; i++) {
@@ -391,73 +391,20 @@ router.get('/', function (req, res, next) {
       'end': new Date(new Date().setHours(0, 0, 0, 0)).toISOString()
     };
   }
-  
+
   res.render('index', {
     title: 'devbeers Dashboard',
     CITY: QUERY_CITY
   });
 });
 
-router.get('/npsScoreAverage', function(req, res, next) {
-  QUERY_CITY = req.query.city ? req.query.city : "";
-  OVERALL_TIMEFRAME = {
-    'start': new Date('November 1 2013').toISOString(),
-    'end': new Date(new Date().setHours(0, 0, 0, 0)).toISOString()
-  };
-
-  Keen.ready(function() {
-    keenClientSurveys.run(npsScoreAverage.queries, function(err, result) {
-      if (err) throw('error charting: ' + err);
-      else {
-        res.json({
-          name: npsScoreAverage.name,
-          result: result.result
-        });
-      }
-    });
-  });
-});
-
-router.get('/superagenttest', function(req, res, next) {
-  QUERY_CITY = req.query.city ? req.query.city : "";
-  OVERALL_TIMEFRAME = {
-    'start': new Date('November 1 2013').toISOString(),
-    'end': new Date(new Date().setHours(0, 0, 0, 0)).toISOString()
-  };
-
-  res.render('superagent', {
-    title: 'neto dashboard',
-    CITY: QUERY_CITY
-  });
-//   var npsScoreAverage = {
-//     name: 'npsScoreAverage',
-//     queries: [new Keen.Query('average', {
-//       eventCollection: 'Participants Answers',
-//       targetProperty: 'nps_score',
-//       timeframe: OVERALL_TIMEFRAME
-//     })],
-//     callback: function(err, res) {
-//       if (err) throw('error charting: ' + err);
-//       else {
-//         var queryResult = res.result;
-//         var query = new QueryResult();
-//         query.name = queryName;
-//         query.result = queryResult;
-//         query.city = QUERY_CITY;
-//         query.timeframe = OVERALL_TIMEFRAME;
-        
-//         saveAndEmitQuery(npsScoreAverage.name, queryResult);
-//       }
-//     }};
-});
-
 module.exports = function (app, server) {
   io = require('socket.io')(server);
-  
+
   io.on('connection', function(socket) {
-    runKeenQueries(keenSurveyQueries, keenClientSurveys);  
+    runKeenQueries(keenSurveyQueries, keenClientSurveys);
     runKeenQueries(keenParticipantQueries, keenParticipantsList);
   });
-  
+
   app.use('/', router);
 };
