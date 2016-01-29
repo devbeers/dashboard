@@ -186,18 +186,18 @@ var monthlySignupAndCheckins = {
         });
       }
 
-      var results = [
-        {name: name, result: data},
-        {name: 'averageCheckInPercentage', result: (checkInPercentage / result2.length).toFixed(2) * 100},
-        {name: 'averageSignups', result: Math.round((averageSignupsResult / result1.length) * 100) / 100},
-        {name: 'averageCheckins', result: Math.round((averageCheckinsResult / result2.length) * 100) / 100}
-      ];
+      var results = {
+        result: [
+          {name: name, result: data},
+          {name: 'averageCheckInPercentage', result: (checkInPercentage / result2.length).toFixed(2) * 100},
+          {name: 'averageSignups', result: Math.round((averageSignupsResult / result1.length) * 100) / 100},
+          {name: 'averageCheckins', result: Math.round((averageCheckinsResult / result2.length) * 100) / 100}
+        ]
+      };
 
-      for (i = 0; i < results.length; i++) {
-        saveQuery(results[i].name, results[i].result);
-      }
+      saveQuery(name, results.result);
 
-      res.json({results: results});
+      res.json(results);
     };
   }
 };
@@ -299,10 +299,10 @@ router.get('/superagenttest', function(req, res, next) {
 function createRoutes(keenClient) {
   for (var queryName in keenClient.queries) {
     var query = keenClient.queries[queryName];
-    (function (query, queryName) {
+    (function(query, queryName) {
       // console.log('resgistering:', queryName)
       router.get('/' + queryName, function(req, res, next) {
-        keenClient.run(query.queries, query.callback(res, queryName));
+        QueryResult.findOne({ name: queryName, city: QUERY_CITY, timeframe: OVERALL_TIMEFRAME }, runQuery(res, queryName, query, keenClient));
       });
     })(query, queryName);
   }
@@ -346,6 +346,42 @@ function saveQuery(queryName, queryResult) {
   });
 }
 
-module.exports = function (app, server) {
+function runQuery(res, queryName, query, keenClient) {
+  return function(err, queryResult) {
+    if (err) throw('error finding: ' + err);
+    if (!queryResult) {
+      for (var i = 0; i < query.queries.length; i++) {
+        //update queries timeframe property
+        query.queries[i].params.timeframe = OVERALL_TIMEFRAME;
+
+        // clean out 'city' filter in case the user wants to see overall info
+        if (!query.queries[i].params.filters) {
+          query.queries[i].params.filters = [];
+        }
+
+        for (var j = 0; j < query.queries[i].params.filters.length; j++) {
+          if (query.queries[i].params.filters[j].property_name === 'city') {
+            query.queries[i].params.filters.splice(j, 1);
+          }
+        }
+
+        // add new 'city' filter if there is one
+        if (!isEmpty(QUERY_CITY)) {
+          query.queries[i].params.filters.push({
+            property_name: 'city',
+            operator: 'eq',
+            property_value: QUERY_CITY
+          });
+        }
+      }
+
+      keenClient.run(query.queries, query.callback(res, queryName));
+    } else {
+      res.json(queryResult);
+    }
+  };
+}
+
+module.exports = function(app, server) {
   app.use('/', router);
 };

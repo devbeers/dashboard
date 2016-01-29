@@ -2,7 +2,7 @@ var request = require('superagent');
 
 var city = '';
 if (window.location.search.slice(-2) === 'SP' ||
-    window.location.search.slice(-2) === 'BH' || 
+    window.location.search.slice(-2) === 'BH' ||
     window.location.search.slice(-2) === 'RJ') {
     city = window.location.search.slice(-2);
 }
@@ -96,8 +96,8 @@ var keenObjs = {
             if (err) {
                 console.log(err);
             } else {
-                for (var i = 0; i < res.body.results.length; i++) {
-                    var chart = res.body.results[i];
+                for (var i = 0; i < res.body.result.length; i++) {
+                    var chart = res.body.result[i];
                     keenObjs.monthlySignupsAndCheckins.charts[chart.name].parseRawData({
                         result: chart.result
                     }).render();
