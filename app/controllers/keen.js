@@ -22,13 +22,14 @@ var keenParticipantsList = new Keen({
 
 // KeenClientSurveys queries
 // NPS score average
-var npsScoreAverage = { name: 'npsScoreAverage' }; // TODO: remover todos os nomes
-npsScoreAverage.queries = [new Keen.Query('average', {
-  eventCollection: 'Participants Answers',
-  targetProperty: 'nps_score',
-  timeframe: OVERALL_TIMEFRAME
-})];
-npsScoreAverage.callback = sendSimpleResult;
+var npsScoreAverage = {
+  queries: [new Keen.Query('average', {
+    eventCollection: 'Participants Answers',
+    targetProperty: 'nps_score',
+    timeframe: OVERALL_TIMEFRAME
+  })],
+  callback: sendSimpleResult
+};
 
 // Calculate NPS score
 var npsScoreCount = new Keen.Query('count', {
@@ -63,14 +64,15 @@ var npsScorePromoters = new Keen.Query('count', {
    ]
 });
 
-var npsScoreQuery = { name: 'npsScoreParticipants' };
-npsScoreQuery.queries = [npsScoreCount, npsScoreDetractors, npsScorePromoters];
-npsScoreQuery.callback = function(res, name) {
-  return function(err, result) {
-    if (err) throw('error charting: ' + err);
-    else {
-      var queryResult = ((result[2].result - result[1].result) / result[0].result).toFixed(2) * 100;
-      sendResult(name, queryResult, res);
+var npsScoreQuery = {
+  queries: [npsScoreCount, npsScoreDetractors, npsScorePromoters],
+  callback: function(res, name) {
+    return function(err, result) {
+      if (err) throw('error charting: ' + err);
+      else {
+        var queryResult = ((result[2].result - result[1].result) / result[0].result).toFixed(2) * 100;
+        sendResult(name, queryResult, res);
+      }
     }
   }
 };
@@ -81,29 +83,32 @@ keenClientSurveys.queries = {
 };
 
 // keenParticipantsList queries
-var totalEditions = { name: 'totalEditions' };
-totalEditions.queries = [new Keen.Query('count_unique', {
-  eventCollection: 'Event Participants',
-  targetProperty: 'event_id',
-  timeframe: OVERALL_TIMEFRAME
-})];
-totalEditions.callback = sendSimpleResult;
+var totalEditions = {
+  queries: [new Keen.Query('count_unique', {
+    eventCollection: 'Event Participants',
+    targetProperty: 'event_id',
+    timeframe: OVERALL_TIMEFRAME
+  })],
+  callback: sendSimpleResult
+};
 
-var allTimeSignups = { name: 'allTimeSignups' };
-allTimeSignups.queries = [new Keen.Query('count', {
-  eventCollection: 'Event Participants',
-  targetProperty: 'keen.timestamp',
-  timeframe: OVERALL_TIMEFRAME
-})];
-allTimeSignups.callback = sendSimpleResult;
+var allTimeSignups = {
+  queries: [new Keen.Query('count', {
+    eventCollection: 'Event Participants',
+    targetProperty: 'keen.timestamp',
+    timeframe: OVERALL_TIMEFRAME
+  })],
+  callback: sendSimpleResult
+};
 
-var allTimeUniqueSignups = { name: 'allTimeUniqueSignups' };
-allTimeUniqueSignups.queries = [new Keen.Query('count_unique', {
-  eventCollection: 'Event Participants',
-  targetProperty: 'email',
-  timeframe: OVERALL_TIMEFRAME
-})];
-allTimeUniqueSignups.callback = sendSimpleResult;
+var allTimeUniqueSignups = {
+  queries: [new Keen.Query('count_unique', {
+    eventCollection: 'Event Participants',
+    targetProperty: 'email',
+    timeframe: OVERALL_TIMEFRAME
+  })],
+  callback: sendSimpleResult
+};
 
 // Signup Query
 var monthlySignupCountQuery = new Keen.Query('count', {
