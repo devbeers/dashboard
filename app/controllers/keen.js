@@ -2,6 +2,8 @@ var express = require('express');
 var router = express.Router();
 var Keen = require('keen-js');
 var _ = require('lodash');
+var mongoose = require('mongoose');
+var QueryResult = mongoose.model('QueryResult');
 
 // Initial values for timeframe and city
 var OVERALL_TIMEFRAME = {
@@ -71,9 +73,9 @@ var npsScoreQuery = {
       if (err) throw('error charting: ' + err);
       else {
         var queryResult = ((result[2].result - result[1].result) / result[0].result).toFixed(2) * 100;
-        sendResult(name, queryResult, res);
+        sendResult(res, name, queryResult);
       }
-    }
+    };
   }
 };
 
@@ -184,14 +186,18 @@ var monthlySignupAndCheckins = {
         });
       }
 
-      res.json({
-        results: [
-          {name: name, result: data},
-          {name: 'averageCheckInPercentage', result: (checkInPercentage / result2.length).toFixed(2) * 100},
-          {name: 'averageSignups', result: Math.round((averageSignupsResult / result1.length) * 100) / 100},
-          {name: 'averageCheckins', result: Math.round((averageCheckinsResult / result2.length) * 100) / 100}
-        ]
-      });
+      var results = [
+        {name: name, result: data},
+        {name: 'averageCheckInPercentage', result: (checkInPercentage / result2.length).toFixed(2) * 100},
+        {name: 'averageSignups', result: Math.round((averageSignupsResult / result1.length) * 100) / 100},
+        {name: 'averageCheckins', result: Math.round((averageCheckinsResult / result2.length) * 100) / 100}
+      ];
+
+      for (i = 0; i < results.length; i++) {
+        saveQuery(results[i].name, results[i].result);
+      }
+
+      res.json({results: results});
     };
   }
 };
@@ -257,7 +263,7 @@ programmingLanguages = {
         }
       }
 
-      sendResult(name, resultArray, res);
+      sendResult(res, name, resultArray);
     };
   }
 };
@@ -309,7 +315,8 @@ function isEmpty(str) {
   return (!str || 0 === str.length);
 }
 
-function sendResult(name, result, res) {
+function sendResult(res, name, result) {
+  saveQuery(name, result);
   res.json({
     name: name,
     result: result
@@ -320,12 +327,23 @@ function sendSimpleResult(res, name) {
   return function(err, result) {
     if (err) throw('error charting: ' + err);
     else {
-      res.json({
-        name: name,
-        result: result.result
-      });
+      sendResult(res, name, result.result);
     }
-  }
+  };
+}
+
+function saveQuery(queryName, queryResult) {
+  var query = new QueryResult();
+  query.name = queryName;
+  query.result = queryResult;
+  query.city = QUERY_CITY;
+  query.timeframe = OVERALL_TIMEFRAME;
+
+  query.save(function (err) {
+    if (err) {
+      throw('error saving: ' + err);
+    }
+  });
 }
 
 module.exports = function (app, server) {
