@@ -16,4 +16,4 @@ pids
 .lock-wscript
 .npm
 
-public/js/superagenttest.js
+public/js/*.js

@@ -20,7 +20,7 @@ module.exports = function (grunt) {
     browserify: {
       dist: {
         files: {
-          'public/js/superagenttest.js': ['client/superagenttest.js'],
+          'public/js/dashboard.js': ['client/dashboard.js'],
         }
       }
     },
