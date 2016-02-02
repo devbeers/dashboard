@@ -1,11 +1,12 @@
 {
   "name": "devbeers-dashboard",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "main": "app.js",
   "description": "The metrics dashboard for devbeers",
   "scripts": {
-    "start": "./node_modules/browserify/bin/cmd.js client/*.js -o ./public/js/dashboard.js && node app.js"
+    "start": "node app.js",
+    "postinstall": "grunt browserify"
   },
   "engines": {
     "node": "5.0.0"
@@ -28,22 +29,23 @@
     "express": "^4.13.3",
     "express-handlebars": "^2.0.1",
     "glob": "^5.0.3",
+    "grunt": "^0.4.5",
+    "grunt-browserify": "^4.0.1",
+    "grunt-cli": "^0.1.13",
     "keen-js": "^3.2.7",
+    "load-grunt-tasks": "^3.2.0",
     "lodash": "^3.10.1",
     "method-override": "^2.3.0",
     "mongoose": "^4.1.2",
     "morgan": "^1.6.1",
+    "request": "^2.60.0",
     "serve-favicon": "^2.3.0",
     "socket.io": "^1.3.7",
-    "superagent": "^1.6.1"
+    "superagent": "^1.6.1",
+    "time-grunt": "^1.2.1"
   },
   "devDependencies": {
-    "grunt": "^0.4.5",
-    "grunt-browserify": "^4.0.1",
     "grunt-develop": "^0.4.0",
-    "grunt-contrib-watch": "^0.6.1",
-    "request": "^2.60.0",
-    "time-grunt": "^1.2.1",
-    "load-grunt-tasks": "^3.2.0"
+    "grunt-contrib-watch": "^0.6.1"
   }
 }
