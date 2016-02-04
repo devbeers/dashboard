@@ -17,3 +17,4 @@ pids
 .npm
 
 public/js/*.js
+compiled/

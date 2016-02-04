@@ -17,10 +17,21 @@ module.exports = function (grunt) {
         file: 'app.js'
       }
     },
+    babel: {
+      options: {
+        presets: ['react']
+      },
+      dist: {
+        files: {
+          "./compiled/metric.js": "./react/jsx/*.jsx"
+        }
+      }
+    },
     browserify: {
       dist: {
         files: {
           'public/js/dashboard.js': ['client/dashboard.js'],
+          'public/js/metric.js': ['compiled/metric.js']
         }
       }
     },
@@ -36,7 +47,7 @@ module.exports = function (grunt) {
           'client/**/*.js',
           'config/*.js'
         ],
-        tasks: ['develop', 'browserify', 'delayed-livereload']
+        tasks: ['develop', 'babel', 'browserify', 'delayed-livereload']
       },
       css: {
         files: [
@@ -78,6 +89,7 @@ module.exports = function (grunt) {
 
   grunt.registerTask('default', [
     'develop',
+    'babel',
     'browserify',
     'watch'
   ]);

@@ -382,6 +382,10 @@ function runQuery(res, queryName, query, keenClient) {
   };
 }
 
+router.get('/metrics', function(req, res, next) {
+  res.render('react', {title: 'react'});
+});
+
 module.exports = function(app, server) {
   app.use('/', router);
 };

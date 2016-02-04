@@ -21,6 +21,7 @@
     "metrics"
   ],
   "dependencies": {
+    "babel-preset-react": "^6.3.13",
     "body-parser": "^1.13.3",
     "browserify": "^13.0.0",
     "compression": "^1.5.2",
@@ -30,6 +31,7 @@
     "express-handlebars": "^2.0.1",
     "glob": "^5.0.3",
     "grunt": "^0.4.5",
+    "grunt-babel": "^6.0.0",
     "grunt-browserify": "^4.0.1",
     "grunt-cli": "^0.1.13",
     "keen-js": "^3.2.7",
@@ -38,6 +40,8 @@
     "method-override": "^2.3.0",
     "mongoose": "^4.1.2",
     "morgan": "^1.6.1",
+    "react": "^0.14.7",
+    "react-dom": "^0.14.7",
     "request": "^2.60.0",
     "serve-favicon": "^2.3.0",
     "socket.io": "^1.3.7",
