@@ -45,7 +45,8 @@ module.exports = function (grunt) {
           'app.js',
           'app/**/*.js',
           'client/**/*.js',
-          'config/*.js'
+          'config/*.js',
+          'react/**/*.jsx'
         ],
         tasks: ['develop', 'babel', 'browserify', 'delayed-livereload']
       },
