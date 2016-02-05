@@ -7,7 +7,7 @@ var QueryResult = mongoose.model('QueryResult');
 
 // Initial values for timeframe and city
 var OVERALL_TIMEFRAME = {
-  'start': new Date('November 1 2013').toISOString(),
+  'start': new Date('February 1 2014').toISOString(),
   'end': new Date(new Date().setHours(0, 0, 0, 0)).toISOString()
 };
 var QUERY_CITY = "";
