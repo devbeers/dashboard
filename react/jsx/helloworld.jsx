@@ -1,19 +1,16 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
 var C3 = require('c3');
+var request = require('superagent');
 
 var data = {
     title: 'Temp title',
-    chart: {
-        columns: [
-            ['data1', 300, 350, 300, 0, 0, 0],
-            ['data2', 130, 100, 140, 200, 150, 50]
-        ],
-        types: {
-            data1: 'area',
-            data2: 'area-spline'
-        }
-    }
+    chartTrends: [
+        { label: 'current', period: 0 },
+        { label: '3 months ago', period: 3 },
+        { label: '6 months ago', period: 6 },
+        { label: '12 months ago', period: 12 }
+    ]
 };
 
 var ChartTitle = React.createClass({
@@ -42,14 +39,67 @@ var Chart = React.createClass({
     }
 });
 
-var Metric = React.createClass({
+var ChartTrend = React.createClass({
     render: function() {
         return (
-            <div>
-                <ChartTitle title={this.props.data.title} />
-                <Chart chart={this.props.data.chart} />
+            <div className="chart-trend">
+                <h5>{this.props.label}</h5>
+                <h5>{this.props.percentage + '%'}</h5>
+                <h2>{this.props.value}</h2>
             </div>
         );
+    }
+});
+
+var Metric = React.createClass({
+    getInitialState: function() {
+        return {loading: true};
+    },
+    componentDidMount: function() {
+        request.get('/allTimeSignupsDetail', function(err, res) {
+            if (err) { console.log(err); }
+            else {
+                var data = ['Total'];
+                data.push(res.body.result[0].value);
+                for (var i = 1; i < res.body.result.length; i++) {
+                    data.push(data[i] + res.body.result[i].value);
+                }
+                this.setState({ data: data, loading: false });
+            }
+        }.bind(this));
+    },
+    render: function() {
+        if (this.state.loading) {
+            return <h1>Loading...</h1>
+        } else {
+            var chartTrends = [];
+            var firstValue = this.state.data[this.state.data.length - 1];
+            for (var i = 0; i < this.props.data.chartTrends.length; i++) {
+                var currentValue = this.state.data[this.state.data.length - 1 - this.props.data.chartTrends[i].period];
+                var percentage = Math.round(((firstValue / currentValue) - 1) * 100);
+
+                chartTrends.push(
+                    <div className="col-sm-3" key={i}>
+                        <ChartTrend
+                            label={this.props.data.chartTrends[i].label}
+                            percentage={percentage}
+                            value={currentValue} />
+                    </div>
+                );
+            }
+            var chart = {
+                columns: [this.state.data],
+                types: { Total: 'area' }
+            };
+            console.log(chart);
+            return (
+                <div>
+                    <ChartTitle title={this.props.data.title} />
+                    <Chart chart={chart} />
+                    <div className="row">{chartTrends}</div>
+                </div>
+            );
+        }
     }
 });
 
