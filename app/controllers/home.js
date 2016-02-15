@@ -398,6 +398,7 @@ router.get('/allTimeSignupsDetail', function(req, res, next) {
   keenParticipantsList.run(query, function(err, result) {
     if (err) { throw(err); }
     else {
+      result.title = 'All time signups';
       res.json(result);
     }
   });
