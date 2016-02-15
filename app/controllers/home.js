@@ -386,6 +386,23 @@ router.get('/metrics', function(req, res, next) {
   res.render('react', {title: 'react'});
 });
 
+router.get('/allTimeSignupsDetail', function(req, res, next) {
+  var query = new Keen.Query('count', {
+    eventCollection: 'Event Participants',
+    timeframe: {
+      start: new Date('February 1 2014').toISOString(),
+      end: new Date(new Date().setHours(0, 0, 0, 0)).toISOString()
+    },
+    interval: 'monthly'
+  });
+  keenParticipantsList.run(query, function(err, result) {
+    if (err) { throw(err); }
+    else {
+      res.json(result);
+    }
+  });
+});
+
 module.exports = function(app, server) {
   app.use('/', router);
 };
