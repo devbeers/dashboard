@@ -4,7 +4,6 @@ var C3 = require('c3');
 var request = require('superagent');
 
 var data = {
-    title: 'Temp title',
     chartTrends: [
         { label: 'current', period: 0 },
         { label: '3 months ago', period: 3 },
@@ -64,7 +63,7 @@ var Metric = React.createClass({
                 for (var i = 1; i < res.body.result.length; i++) {
                     data.push(data[i] + res.body.result[i].value);
                 }
-                this.setState({ data: data, loading: false });
+                this.setState({ data: data, loading: false, title: res.body.title });
             }
         }.bind(this));
     },
@@ -91,12 +90,13 @@ var Metric = React.createClass({
                 columns: [this.state.data],
                 types: { Total: 'area' }
             };
-            console.log(chart);
             return (
                 <div>
-                    <ChartTitle title={this.props.data.title} />
-                    <Chart chart={chart} />
-                    <div className="row">{chartTrends}</div>
+                    <div className="chart-container">
+                      <ChartTitle title={this.state.title} />
+                      <Chart chart={chart} />
+                    </div>
+                    <div className="row chart-trends">{chartTrends}</div>
                 </div>
             );
         }
