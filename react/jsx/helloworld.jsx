@@ -5,7 +5,7 @@ var request = require('superagent');
 
 var data = {
     chartTrends: [
-        { label: 'current', period: 0 },
+        { label: 'Current', period: 0 },
         { label: '3 months ago', period: 3 },
         { label: '6 months ago', period: 6 },
         { label: '12 months ago', period: 12 }
@@ -15,7 +15,7 @@ var data = {
 var ChartTitle = React.createClass({
     render: function() {
         return (
-            <h1 className="metric-title">{this.props.title}</h1>
+            <h1 className="chart-title">{this.props.title}</h1>
         );
     }
 });
@@ -40,10 +40,16 @@ var Chart = React.createClass({
 
 var ChartTrend = React.createClass({
     render: function() {
+        var color = 'zero';
+        if (this.props.percentage > 0) {
+            color = 'positive';
+        } else if (this.props.percentage < 0) {
+            color = 'negative';
+        }
         return (
             <div className="chart-trend">
-                <h5>{this.props.label}</h5>
-                <h5>{this.props.percentage + '%'}</h5>
+                <h5 className="trend-label">{this.props.label}</h5>
+                <h5 className={'trend-percentage ' + color}>{this.props.percentage + '%'}</h5>
                 <h2>{this.props.value}</h2>
             </div>
         );
@@ -92,9 +98,13 @@ var Metric = React.createClass({
             };
             return (
                 <div>
-                    <div className="chart-container">
-                      <ChartTitle title={this.state.title} />
-                      <Chart chart={chart} />
+                    <div className="row">
+                        <div className="col-sm-12">
+                            <div className="chart-container">
+                              <ChartTitle title={this.state.title} />
+                              <Chart chart={chart} />
+                            </div>
+                        </div>
                     </div>
                     <div className="row chart-trends">{chartTrends}</div>
                 </div>

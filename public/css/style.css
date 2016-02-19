@@ -1,8 +1,50 @@
 body {
-  padding: 75px;
+  padding: 75px 75px 0 75px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 a {
   color: #00B7FF;
+}
+
+.chart-container {
+  background-color: white;
+  border: 1px solid #e2e2e2;
+  border-radius: 3px;
+  padding: 20px;
+}
+
+h1.chart-title {
+    margin-top: 0
+}
+
+.chart-trends {
+    margin-top: 10px;
+}
+
+.chart-trend {
+  background-color: white;
+  border: 1px solid #e2e2e2;
+  border-radius: 3px;
+  text-align: center;
+}
+
+.trend-label {
+    font-weight: bold;
+}
+
+.trend-percentage {
+    font-weight: bold;
+}
+
+.trend-percentage.zero {
+    color: black;
+}
+
+.trend-percentage.positive {
+    color: #21BA6E;
+}
+
+.trend-percentage.negative {
+    color: #E23C3F;
 }
