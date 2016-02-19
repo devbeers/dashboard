@@ -382,7 +382,7 @@ function runQuery(res, queryName, query, keenClient) {
   };
 }
 
-router.get('/metrics', function(req, res, next) {
+router.get('/allTimeSignupsChart', function(req, res, next) {
   res.render('react', {title: 'react'});
 });
 

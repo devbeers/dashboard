@@ -22,16 +22,20 @@ module.exports = function (grunt) {
         presets: ['react']
       },
       dist: {
-        files: {
-          "./compiled/metric.js": "./react/jsx/*.jsx"
-        }
+        files: [{
+          expand: true,
+          cwd: 'react/jsx/',
+          src: ['*.jsx'],
+          ext: '.js',
+          dest: 'compiled/'
+        }]
       }
     },
     browserify: {
       dist: {
         files: {
           'public/js/dashboard.js': ['client/dashboard.js'],
-          'public/js/metric.js': ['compiled/metric.js']
+          'public/js/metric.js': ['compiled/*.js']
         }
       }
     },
