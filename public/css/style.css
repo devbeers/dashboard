@@ -7,6 +7,10 @@ a {
   color: #00B7FF;
 }
 
+.chart-link:hover {
+  text-decoration: none;
+}
+
 .chart-container {
   background-color: white;
   border: 1px solid #e2e2e2;
