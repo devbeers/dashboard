@@ -5,11 +5,13 @@ var _ = require('lodash');
 var mongoose = require('mongoose');
 var QueryResult = mongoose.model('QueryResult');
 
-// Initial values for timeframe and city
-var OVERALL_TIMEFRAME = {
+var FROM_BEGINNING_TIMEFRAME = {
   'start': new Date('February 1 2014').toISOString(),
   'end': new Date(new Date().setHours(0, 0, 0, 0)).toISOString()
 };
+
+// Initial values for timeframe and city
+var OVERALL_TIMEFRAME = FROM_BEGINNING_TIMEFRAME;
 var QUERY_CITY = "";
 
 // Keen clients
@@ -284,10 +286,7 @@ router.get('/', function(req, res, next) {
       "end": new Date(req.query.endDate).toISOString()
     };
   } else {
-    OVERALL_TIMEFRAME = {
-      'start': new Date('November 1 2013').toISOString(),
-      'end': new Date(new Date().setHours(0, 0, 0, 0)).toISOString()
-    };
+    OVERALL_TIMEFRAME = FROM_BEGINNING_TIMEFRAME;
   }
 
   res.render('index', {
@@ -389,16 +388,55 @@ router.get('/allTimeSignupsChart', function(req, res, next) {
 router.get('/allTimeSignupsDetail', function(req, res, next) {
   var query = new Keen.Query('count', {
     eventCollection: 'Event Participants',
-    timeframe: {
-      start: new Date('February 1 2014').toISOString(),
-      end: new Date(new Date().setHours(0, 0, 0, 0)).toISOString()
-    },
+    timeframe: FROM_BEGINNING_TIMEFRAME,
     interval: 'monthly'
   });
   keenParticipantsList.run(query, function(err, result) {
     if (err) { throw(err); }
     else {
       result.title = 'All time signups';
+      res.json(result);
+    }
+  });
+});
+
+router.get('/allTimeUniqueSignupsChart', function(req, res, next) {
+  res.render('react', {title: 'react'});
+});
+
+router.get('/allTimeUniqueSignupsDetail', function(req, res, next) {
+  var query = new Keen.Query('select_unique', {
+    eventCollection: 'Event Participants',
+    targetProperty: 'email',
+    timeframe: FROM_BEGINNING_TIMEFRAME,
+    interval: 'monthly'
+  });
+  keenParticipantsList.run(query, function(err, result) {
+    if (err) { throw(err); }
+    else {
+      // filtering all time unique emails
+      var groupByTimeframe = result.result;
+      for (var i = 0; i < groupByTimeframe.length; i++) {
+        var emailList = groupByTimeframe[i].value;
+        for (var j = 0; j < emailList.length; j++) {
+          for (var k = i+1; k < groupByTimeframe.length; k++) {
+            var nextEmailList = groupByTimeframe[k].value;
+            var index = nextEmailList.indexOf(emailList[j]);
+            if (index > -1) {
+              nextEmailList.splice(index, 1);
+            }
+          }
+        }
+      }
+
+      // making a list of all time unique emails totals by month
+      var count = [];
+      for (i = 0; i < groupByTimeframe.length; i++) {
+        count.push({value: groupByTimeframe[i].value.length});
+      }
+
+      result.title = 'All time unique signups';
+      result.result = count;
       res.json(result);
     }
   });
