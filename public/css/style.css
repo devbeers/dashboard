@@ -52,3 +52,33 @@ h1.chart-title {
 .trend-percentage.negative {
     color: #E23C3F;
 }
+
+.navbar {
+  background-color: #FFC107;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  border: none;
+}
+
+.navbar-inverse .navbar-nav > li > a,
+.navbar .navbar-brand {
+  color: #212121;
+  text-decoration: none;
+}
+
+.keen-metric {
+  background-color: white !important;
+  color: #03A9F4 !important;
+}
+
+.btn-date-form {
+  margin-bottom: 20px;
+}
+
+.row {
+  margin: 0px;
+}
+
+.date-picker-group {
+  margin-top: 25px;
+  margin-bottom: 25px;
+}

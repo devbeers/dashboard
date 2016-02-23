@@ -1,25 +1,23 @@
 <div class="container-fluid">
 
   <div class="row">
-    <div class="row">
-      <div class="col-sm-6 col-md-4 col-md-offset-4 col-sm-offset-3">
+    <div class="row date-picker-group">
         <form method="get" action="/">
-          <div class="form-group">
+          <div class="form-group col-sm-6 col-md-6">
             <label for="datepicker1">Start Date:</label>
-            <input type="text" class="form-control" name="startDate" id="datepicker1"></p>
+            <input type="text" class="form-control" name="startDate" id="datepicker1">
           </div>
-          <div class="form-group">
+          <div class="form-group col-sm-6 col-md-6">
             <label for="datepicker2">End Date:</label>
-            <input type="text" class="form-control" name="endDate" id="datepicker2"></p>
+            <input type="text" class="form-control" name="endDate" id="datepicker2">
           </div>
           <input type="hidden" name="city" value="{{CITY}}"/>
-          <button type="submit" class="btn btn-default">Submit</button><br/>
-          <br/>
+          <button type="submit" class="btn btn-default btn-date-form col-sm-2 col-sm-offset-5">Submit</button>
         </form>
-      </div>
     </div>
+    
     <div class="row">
-      <div class="col-sm-6 col-md-4 col-md-offset-4 col-sm-offset-3">
+      <div class="col-sm-6 col-md-4">
         <div class="chart-wrapper">
           <div class="chart-title">
             Number of Editions
@@ -27,12 +25,8 @@
           <div class="chart-stage">
             <div id="total-editions"></div>
           </div>
-          <div class="chart-notes">
-          </div>
         </div>
       </div>
-    </div>
-    <div class="row">
       <div class="col-sm-6 col-md-4">
         <div class="chart-wrapper">
           <div class="chart-title">
@@ -40,9 +34,6 @@
           </div>
           <div class="chart-stage">
             <div id="nps-score-participants-average"></div>
-          </div>
-          <div class="chart-notes">
-            Ranges from 0-10
           </div>
         </div>
       </div>
@@ -54,11 +45,11 @@
           <div class="chart-stage">
             <div id="nps-score-participants"></div>
           </div>
-          <div class="chart-notes">
-            Ranges from -100 to 100
-          </div>
         </div>
       </div>
+    </div>
+    
+    <div class="row">
       <div class="col-sm-6 col-md-4">
         <div class="chart-wrapper">
           <div class="chart-title">
@@ -67,13 +58,8 @@
           <div class="chart-stage">
             <div id="average-signups"></div>
           </div>
-          <div class="chart-notes">
-          </div>
         </div>
       </div>
-    </div>
-<!-- end of three -->
-    <div class="row">
       <div class="col-sm-6 col-md-4">
         <a class="chart-link" href="/allTimeSignupsChart">
           <div class="chart-wrapper">
@@ -102,6 +88,9 @@
           </div>
         </a>
       </div>
+    </div>
+
+    <div class="row">
       <div class="col-sm-6 col-md-4">
         <div class="chart-wrapper">
           <div class="chart-title">
@@ -109,23 +98,6 @@
           </div>
           <div class="chart-stage">
             <div id="average-checkins"></div>
-          </div>
-          <div class="chart-notes">
-          </div>
-        </div>
-      </div>
-    </div>
-<!-- end of three -->
-    <div class="row">
-      <div class="col-sm-8">
-        <div class="chart-wrapper">
-          <div class="chart-title">
-            Monthly Signups and Check-in - All Cities
-          </div>
-          <div class="chart-stage">
-            <div id="monthly-signups-and-checkins-sp"></div>
-          </div>
-          <div class="chart-notes">
           </div>
         </div>
       </div>
@@ -137,12 +109,23 @@
           <div class="chart-stage">
             <div id="average-check-in-percentage"></div>
           </div>
-          <div class="chart-notes">
-            Ranges from 0% to 100%
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="chart-wrapper">
+          <div class="chart-title">
+            Monthly Signups and Check-in - All Cities
+          </div>
+          <div class="chart-stage">
+            <div id="monthly-signups-and-checkins-sp"></div>
           </div>
         </div>
       </div>
     </div>
+    
     <div class="row">
       <div class="col-sm-12">
         <div class="chart-wrapper">
@@ -152,16 +135,15 @@
           <div class="chart-stage">
             <div id="programming-languages"></div>
           </div>
-          <div class="chart-notes">
-          </div>
         </div>
       </div>
     </div>
+    
   </div>
 
   <hr>
 
-  <p class="small text-muted">Built with &#9829; by <a href="https://keen.io">Keen IO</a></p>
+  <p class="small text-muted">Built with &#9829; using <a href="https://keen.io">Keen IO</a></p>
 
 </div>
 
