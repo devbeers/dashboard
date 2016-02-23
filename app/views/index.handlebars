@@ -170,8 +170,8 @@
 <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 <script>
   $(function() {
-    $("#datepicker1").datepicker();
-    $("#datepicker2").datepicker();
+    $("#datepicker1").datepicker().datepicker("setDate", new Date('November 1 2013'));
+    $("#datepicker2").datepicker().datepicker("setDate", new Date());
   });
 </script>
 <script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.min.js"></script>
