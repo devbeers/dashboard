@@ -7,13 +7,11 @@ if (window.location.search.slice(-2) === 'SP' ||
     city = window.location.search.slice(-2);
 }
 
-
 var keenObjs = {
     totalEditions: {
         chart: new Keen.Dataviz()
             .el(document.getElementById('total-editions'))
             .chartType('metric')
-            .colors(['#49c5b1'])
             .title('Number of Editions')
             .prepare(),
         callback: callback
@@ -22,7 +20,6 @@ var keenObjs = {
         chart: new Keen.Dataviz()
             .el(document.getElementById('nps-score-participants-average'))
             .chartType('metric')
-            .colors(['#49c5b1'])
             .title('NPS Score Average')
             .prepare(),
         callback: callback
@@ -32,7 +29,6 @@ var keenObjs = {
             .el(document.getElementById('nps-score-participants'))
             .chartType('metric')
             .title('NPS Score')
-            .colors(['#49c5b1'])
             .prepare(),
         callback: callback
     },
@@ -41,7 +37,6 @@ var keenObjs = {
             .el(document.getElementById('all-time-signups'))
             .chartType('metric')
             .title('All-time signups')
-            .colors(['#49c5b1'])
             .chartOptions({
                 prettyNumber: false
             })
@@ -53,7 +48,6 @@ var keenObjs = {
             .el(document.getElementById('all-time-unique-signups'))
             .chartType('metric')
             .title('All-time unique signups')
-            .colors(['#49c5b1'])
             .chartOptions({
                 prettyNumber: false
             })
@@ -70,14 +64,12 @@ var keenObjs = {
                 .el(document.getElementById('average-check-in-percentage'))
                 .chartType('metric')
                 .title('Check-in Rate')
-                .colors(['#49c5b1'])
                 .chartOptions({suffix: '%'})
                 .prepare(),
             averageSignups: new Keen.Dataviz()
                 .el(document.getElementById('average-signups'))
                 .chartType('metric')
                 .title('Average Signups')
-                .colors(['#49c5b1'])
                 .chartOptions({
                 prettyNumber: false
                 })
@@ -86,7 +78,6 @@ var keenObjs = {
                 .el(document.getElementById('average-checkins'))
                 .chartType('metric')
                 .title('Average Check-ins')
-                .colors(['#49c5b1'])
                 .chartOptions({
                     prettyNumber: false
                 })
