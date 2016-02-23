@@ -1,19 +1,29 @@
 <div class="container-fluid">
 
   <div class="row">
-    <div class="row date-picker-group">
-        <form method="get" action="/">
-          <div class="form-group col-sm-6 col-md-6">
-            <label for="datepicker1">Start Date:</label>
-            <input type="text" class="form-control" name="startDate" id="datepicker1">
-          </div>
-          <div class="form-group col-sm-6 col-md-6">
-            <label for="datepicker2">End Date:</label>
-            <input type="text" class="form-control" name="endDate" id="datepicker2">
-          </div>
-          <input type="hidden" name="city" value="{{CITY}}"/>
-          <button type="submit" class="btn btn-default btn-date-form col-sm-2 col-sm-offset-5">Submit</button>
-        </form>
+    <div class="row date-form">
+      <div class="col-sm-6">
+        <a href="#" class="btn btn-default" id="allTimeButton">All-time</a>
+        <a href="#" class="btn btn-default" id="lastMonthButton">Last month</a>        
+        <a href="#" class="btn btn-default" id="lastThreeMonthsButton">Last 3 months</a>
+        <a href="#" class="btn btn-default" id="lastSixMonthsButton">Last 6 months</a>
+        <a href="#" class="btn btn-default" id="lastTwelveMonthsButton">Last 12 months</a>
+      </div>
+      
+      <div class="col-sm-6">
+        <div class="text-right">
+          <form class="form-inline" method="get" action="/">
+            <div class="form-group">
+              <input type="text" class="form-control" name="startDate" id="datepicker1">
+            </div>
+            <div class="form-group">
+              <input type="text" class="form-control" name="endDate" id="datepicker2">
+            </div>
+            <input type="hidden" name="city" value="{{CITY}}"/>
+            <button type="submit" class="btn btn-default">Submit</button>
+          </form>
+        </div>
+      </div>
     </div>
     
     <div class="row">
@@ -152,8 +162,25 @@
 <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 <script>
   $(function() {
-    $("#datepicker1").datepicker().datepicker("setDate", new Date('November 1 2013'));
-    $("#datepicker2").datepicker().datepicker("setDate", new Date());
+    var getUrlParameter = function getUrlParameter(sParam) {
+      var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+          sURLVariables = sPageURL.split('&'),
+          sParameterName,
+          i;
+
+      for (i = 0; i < sURLVariables.length; i++) {
+        sParameterName = sURLVariables[i].split('=');
+
+        if (sParameterName[0] === sParam) {
+            return sParameterName[1] === undefined ? true : sParameterName[1];
+        }
+      }
+    }
+    
+    var startDate = getUrlParameter('startDate') || new Date('November 1 2013');
+    var endDate = getUrlParameter('endDate') || new Date();
+    $("#datepicker1").datepicker().datepicker("setDate", startDate);
+    $("#datepicker2").datepicker().datepicker("setDate", endDate);
   });
 </script>
 <script type="text/javascript" src="/lib/bootstrap/dist/js/bootstrap.min.js"></script>
@@ -166,3 +193,21 @@
 <script type="text/javascript" src="/lib/keen-js/dist/keen.min.js"></script>
 <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
 <script type="text/javascript" src="/js/dashboard.js"></script>
+<script>
+  function setTimeframe(startingDate) {
+    return '?startDate=' +
+      startingDate.toLocaleDateString() + '&endDate=' + new Date().toLocaleDateString();
+  }
+  
+  function getCurrentDateLessMonths(months) {
+    var a = new Date();
+    a.setMonth(a.getMonth() - months);
+    return a;
+  }
+  
+  document.getElementById('allTimeButton').setAttribute('href', setTimeframe(new Date('November 1 2013')));
+  document.getElementById('lastMonthButton').setAttribute('href', setTimeframe(getCurrentDateLessMonths(1)));
+  document.getElementById('lastThreeMonthsButton').setAttribute('href', setTimeframe(getCurrentDateLessMonths(3)));
+  document.getElementById('lastSixMonthsButton').setAttribute('href', setTimeframe(getCurrentDateLessMonths(6)));
+  document.getElementById('lastTwelveMonthsButton').setAttribute('href', setTimeframe(getCurrentDateLessMonths(12)));
+</script>
