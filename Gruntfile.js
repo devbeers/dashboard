@@ -34,7 +34,7 @@ module.exports = function (grunt) {
     browserify: {
       dist: {
         files: {
-          'public/js/dashboard.js': ['client/dashboard.js'],
+          'public/js/app.js': ['client/*.js'],
           'public/js/metric.js': ['compiled/*.js']
         }
       }

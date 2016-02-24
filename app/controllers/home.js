@@ -282,8 +282,8 @@ router.get('/', function(req, res, next) {
   QUERY_CITY = req.query.city ? req.query.city : "";
   if (req.query.startDate && req.query.endDate) {
     OVERALL_TIMEFRAME = {
-      "start": new Date(req.query.startDate).toISOString(),
-      "end": new Date(req.query.endDate).toISOString()
+      "start": req.query.startDate,
+      "end": req.query.endDate
     };
   } else {
     OVERALL_TIMEFRAME = FROM_BEGINNING_TIMEFRAME;
