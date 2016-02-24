@@ -6,7 +6,7 @@
   "description": "The metrics dashboard for devbeers",
   "scripts": {
     "start": "node app.js",
-    "postinstall": "grunt browserify"
+    "postinstall": "grunt build"
   },
   "engines": {
     "node": "5.0.0"
