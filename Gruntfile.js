@@ -98,4 +98,8 @@ module.exports = function (grunt) {
     'browserify',
     'watch'
   ]);
+  grunt.registerTask('build', [
+    'babel',
+    'browserify'
+  ]);
 };
